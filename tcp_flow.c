@@ -1,5 +1,44 @@
 #include "sloth.h"
 
+static struct kmem_cache *tcp_flow_cache = NULL;
+
+int32_t tcp_flow_cache_init(void)
+{
+	tcp_flow_cache = kmem_cache_create("tcp_flow_cache",
+				sizeof(tcp_flow_t), 0, SLAB_HWCACHE_ALIGN, NULL);
+	if(tcp_flow_cache == NULL) {
+		sloth_err("kmem_cache_create tcp_flow_cache failed!\n");
+		return -ENOMEM;
+	} else {
+		sloth_debug("kmem_cache_create tcp_flow_cache %p\n", tcp_flow_cache);
+		return 0;
+	}
+}
+
+void tcp_flow_cache_clean(void)
+{
+	if(tcp_flow_cache = NULL)
+	  return;
+	sloth_debug("kmem_cache_destroy tcp_flow_cache %p\n", tcp_flow_cache);
+	kmem_cache_destroy(tcp_flow_cache);
+	tcp_flow_cache = NULL;
+}
+
+tcp_flow_t *tcp_flow_alloc(tcp_flow_type_t type, tcp_flow_key_t key,
+			uint32_t hook_num, struct sk_buff *skb)
+{
+	tcp_flow = (tcp_flow_t *)kmem_cache_alloc(tcp_flow_cache, GFP_ATOMIC);
+	if(tcp_flow == NULL) {
+		sloth_err("alloc tcp flow failed!\n");
+		return NULL;
+	}
+	memset(tcp_flow, 0, sizeof(tcp_flow_t));
+	kref_init(&tcp_flow->ref_cnt);
+
+	tcp_flow->type = type;
+	tcp_flow->state = TCP_CLOSED;
+}
+
 tcp_flow_table_t *tcp_flow_table = NULL;
 
 int32_t tcp_flow_table_init(void)

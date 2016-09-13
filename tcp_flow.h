@@ -15,7 +15,7 @@ typedef struct tcp_flow {
 	uint32_t		state;
 	uint32_t		hook_num;
 	spinlock_t		lock;
-//	tcp_kref_t		ref_cnt;
+	struct kref		ref_cnt;
 	skb_queue_t		recv_queue;
 
 	uint32_t		snd_wnd;
